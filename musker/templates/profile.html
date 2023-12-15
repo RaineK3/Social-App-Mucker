@@ -25,6 +25,7 @@
 								    		height="50" class="rounded-circle" alt="Profile Image">
 
 								      {% endif %}
+
 										</div>
 										<div class="col-11">
 											{{meep.body}}<br/>
@@ -32,10 +33,12 @@
 								  			{{meep.created_at}} By {{meep.user.username}}
 								  			- {{ meep.number_of_likes }} Likes -
 								  			{% if user in meep.likes.all %}
-							  					<a href="{% url 'meep_like' meep.id %}">Unlike</a>
+							  					<a href="{% url 'meep_like' meep.id %}"><i class="fa fa-heart" style="color:red"></i></a>
 							  				{% else %}
-							  					<a href="{% url 'meep_like' meep.id %}">Like</a>
+							  					<a href="{% url 'meep_like' meep.id %}"><i class="fa fa-heart-o" style="color:red"></i></a>
 							  				{% endif %}
+							  				&nbsp;
+							  				<a href="{% url 'meep_show' meep.id %}"><i class="fa-solid fa-share" style="color:gray;"></i></a>
 								  		</small>
 										</div>
 									</div>
@@ -51,16 +54,47 @@
 						<img width="120" height="120" class="rounded-circle" src="{{ profile.profile_image.url }}">
 						<br/><br/>
 					{% endif %}
+
+					{% if profile.homepage_link %}
+						<a href="{{ profile.homepage_link }}" target="new" style="color:gray"><i class="fa-solid fa-link"></i></a>
+					{% endif %}
+					&nbsp;
+
+					{% if profile.facebook_link %}
+						<a href="{{ profile.facebook_link }}" target="new" style="color:gray"><i class="fa-brands fa-facebook"></i></a>
+					{% endif %}
+					&nbsp;
+
+
+					{% if profile.instagram_link %}
+						<a href="{{ profile.instagram_link }}" target="new" style="color:gray"><i class="fa-brands fa-instagram"></i></a>
+					{% endif %}
+					&nbsp;
+
+					{% if profile.linkedin_link %}
+						<a href="{{ profile.linkedin_link }}" target="new" style="color:gray"><i class="fa-brands fa-linkedin-in"></i></a>
+					{% endif %}
+					<br/><br/>
+
+					{% if profile.profile_bio %}
+						<p align="justify">
+							{{ profile.profile_bio}}
+						</p>
+					{% endif %}
+
+
 					<div class="card">
 					  <h5 class="card-header">Follows</h5>
 					  <div class="card-body">
 					   
 					    <p class="card-text">
 								{% for following in profile.follows.all %}
-									<a href="{% url 'profile' following.user.id %}" >@{{ following }}</a><br/>
+									<a href="{% url 'profile' following.user.id %}" >@{{ following }}</a> <a href="{% url 'unfollow' following.user.id %}"><i class="fa fa-undo small" style="color:gray;"></i></a><br/>
 								{% endfor %}
 					    </p>
-					    
+					    <div class="card-footer text-end">
+								<a href="{% url 'follows' profile.user.id%}"class="btn btn-sm btn-outline-secondary">See All...</a>
+							</div>
 					  </div>
 					</div>
 					<br/><br/>
@@ -71,11 +105,21 @@
 					  <div class="card-body">
 					   
 					    <p class="card-text">
-								{% for following in profile.followed_by.all %}
-									<a href="{% url 'profile' following.user.id %}" >@{{ following }}</a><br/>
+								{% for following in profile.followed_by.all|slice:3 %}
+									<a href="{% url 'profile' following.user.id %}" >@{{ following }}</a>&nbsp; 
+									  {% if following in profile.follows.all %}
+									  	<a href="{% url 'unfollow' following.user.id %}"><i class="fa fa-user-minus small"></i></a>
+									  {% else %}
+									  	<a href="{% url 'follow' following.user.id %}"><i class="fa fa-user-plus small"></i></a>
+									  {% endif %}
+									<br/>
 								{% endfor %}
+				
+			
 					    </p>
-					    
+					    <div class="card-footer text-end">
+									<a href="{% url 'followers' profile.user.id%}" class="btn btn-sm btn-outline-secondary">See All...</a>
+							</div>
 					  </div>
 					</div>
 					<br/>

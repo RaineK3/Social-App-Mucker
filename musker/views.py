@@ -26,6 +26,7 @@ def home(request):
 	else:
 		meeps = Meep.objects.all().order_by('-created_at')
 		return render(request,'home.html', {'meeps': meeps})
+
 def profile_list(request):
 	if request.user.is_authenticated:
 		profiles = Profile.objects.exclude(user = request.user)
@@ -33,6 +34,42 @@ def profile_list(request):
 			{"profiles": profiles})
 	else:
 		messages.success(request,("You must be logged in to view this page.."))
+		return redirect('home')
+
+def unfollow(request, pk):
+	if request.user.is_authenticated:
+		#get profile to unfollow
+		profile = Profile.objects.get(user_id = pk)
+		#unfollow the user 
+		request.user.profile.follows.remove(profile)
+		#save our profile
+		request.user.profile.save()
+
+		#return message
+		messages.success(request,(f"You have successfully unfollowed {profile.user.username}"))
+		return redirect(request.META.get('HTTP_REFERER'))
+
+
+	else:
+		messages.success(request,("You must be logged in to access this action."))
+		return redirect('home')
+
+def follow(request, pk):
+	if request.user.is_authenticated:
+		#get profile to unfollow
+		profile = Profile.objects.get(user_id = pk)
+		#unfollow the user 
+		request.user.profile.follows.add(profile)
+		#save our profile
+		request.user.profile.save()
+
+		#return message
+		messages.success(request,(f"You have successfully followed {profile.user.username}"))
+		return redirect(request.META.get('HTTP_REFERER'))
+
+
+	else:
+		messages.success(request,("You must be logged in to access this action."))
 		return redirect('home')
 
 def profile(request,pk):
@@ -58,6 +95,30 @@ def profile(request,pk):
 			"meeps": meeps})
 	else:
 		messages.success(request,("You must be logged in to view this page.."))
+		return redirect('home')
+
+def followers(request, pk):
+	if request.user.is_authenticated:
+		if request.user.id == pk:
+			profiles = Profile.objects.get(user_id = pk)
+			return render(request,'followers.html',{'profiles':profiles})
+		else:
+			messages.success(request,("This is not your profile page"))
+			return redirect('home')
+	else:
+		messages.success(request,("You must be logged in to view this page."))
+		return redirect('home')
+
+def follows(request, pk):
+	if request.user.is_authenticated:
+		if request.user.id == pk:
+			profiles = Profile.objects.get(user_id = pk)
+			return render(request,'follows.html',{'profiles':profiles})
+		else:
+			messages.success(request,("This is not your profile page"))
+			return redirect('home')
+	else:
+		messages.success(request,("You must be logged in to view this page."))
 		return redirect('home')
 
 def login_user(request):
@@ -130,4 +191,13 @@ def meep_like(request, pk):
 
 	else:
 		messages.success(request,("You must be logged in to view this page."))
+		return redirect('home')
+
+
+def meep_show(request, pk):
+	meep = get_object_or_404(Meep, id=pk)
+	if meep:
+		return render(request,"meep_show.html",{'meep':meep})
+	else:
+		messages.success(request,("That meep doesn't exit.."))
 		return redirect('home')
