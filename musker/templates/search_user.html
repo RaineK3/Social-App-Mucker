@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+	<h2>Search Users!</h2><br/>
+
+	<form method="POST">
+
+		{% csrf_token %}
+
+		<input type="input" class="form-control" placeholder="search username" name="search"><br/>
+
+		<button type="submit" class="btn btn-secondary">Search</button>
+		
+	</form>
+	<br/>
+	{% if search %}
+		<h4>You searched for: {{ search }}</h4><br/>
+	{% endif %}
+	<br/>
+<!-- ****{{ searched }}**** -->
+	{% if searched %}
+		{% for result in searched %}
+			<div class="card mb-3" style="max-width: 540px;">
+			  <div class="row g-0">
+			    <div class="col-md-4">
+			    	{% if result.profile.profile_image %}
+
+			    		<img src="{{ result.profile.profile_image.url }}" width="200"
+			    		height="200" class="img-fluid rounded-start" alt="{{ result.profile.user.username }}">
+
+			    	{% else %}
+
+			      	<img src="{% static 'images/pp.jpg' %}" class="img-fluid rounded-start" alt="Profile Image">
+
+			      {% endif %}
+			    	
+			    </div>
+			    <div class="col-md-8">
+			      <div class="card-body">
+			        <h5 class="card-title">{{ result.profile.user.username }}</h5>
+			        <p class="card-text">
+			        	<a href="{% url 'profile' result.profile.user.id %}">@{{ result.profile.user.username | lower }}</a>
+			        </p><br/><br/>
+			        <p class="card-text"><small class="text-body-secondary">Last Updated: {{ result.profile.date_modifed }}</small></p>
+			      </div>
+			    </div>
+			  	</div>
+			</div>
+			<br/>
+			<!-- Username : {{ profile.user.username }}<br/>
+			Link: {{ profile.user.username }}<br/>
+			Last Updated: {{ profile.date_modifed }} -->
+			<br/><br/>
+		{% endfor %}
+	{% else %}
+		{% if searched != None %}
+			That user doesn't exit.Try again..
+		{% endif %}
+	{% endif %}
+
+{% endblock %}
